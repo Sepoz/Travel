@@ -16,11 +16,13 @@ const App = () => {
     zoom: 3,
   });
 
+  const getEntries = async () => {
+    const logEntries = await listLogEntries();
+    setLogEntries(logEntries);
+  };
+
   useEffect(() => {
-    (async () => {
-      const logEntries = await listLogEntries();
-      setLogEntries(logEntries);
-    })();
+    getEntries();
   }, []);
 
   const showAddMarkerPopup = (event) => {
@@ -41,7 +43,7 @@ const App = () => {
     >
       {
         logEntries.map(entry => (
-          <div key={entry._id}>
+          <React.Fragment key={entry._id}>
             <Marker
               longitude={entry.longitude}
               latitude={entry.latitude}
@@ -80,7 +82,7 @@ const App = () => {
                     [entry._id]: false,
                     })}
                     anchor='top'>
-                  <div>
+                  <div className="popup">
                     <h3>{entry.title}</h3>
                     <p>{entry.comments}</p>
                     <small>Visited on: {new Date(entry.visitDate).toLocaleDateString()}</small>
@@ -88,7 +90,7 @@ const App = () => {
                 </Popup>
               ) : null
             }
-          </div>
+          </React.Fragment>
         ))
       }
       {
@@ -123,10 +125,11 @@ const App = () => {
               dynamicPosition={true}
               onClose={() => setAddEntryLocation(null)}
                 anchor='top'>
-                <div>
-                  <LogEntryForm>
-                    
-                  </LogEntryForm>
+                <div className="popup">
+                  <LogEntryForm onClose={() => {
+                    setAddEntryLocation(null);
+                    getEntries();
+                  }} location={addEntryLocation} />
                 </div>
             </Popup>
           </>
